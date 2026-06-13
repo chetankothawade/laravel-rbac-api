@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -72,5 +73,19 @@ class PasswordResetFlowTest extends TestCase
         $response->assertStatus(429)
             ->assertHeader('Retry-After')
             ->assertHeader('X-RateLimit-Limit');
+    }
+
+    public function test_forgot_password_response_is_generic_for_unknown_email(): void
+    {
+        Mail::fake();
+
+        $response = $this->postJson('/api/forgot-password', [
+            'email' => 'missing.reset@example.com',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('status', true);
+
+        Mail::assertNothingSent();
     }
 }

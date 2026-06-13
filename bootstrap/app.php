@@ -14,6 +14,8 @@ use App\Http\Middleware\RateLimitByRole;
 use App\Http\Middleware\RateLimitByIP;
 use App\Http\Middleware\BurstLimit;
 use App\Http\Middleware\RateLimitByToken;
+use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\EnsureUserIsAdmin;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'ip.throttle' => RateLimitByIP::class,
             'burst.throttle' => BurstLimit::class,
             'token.throttle' => RateLimitByToken::class,
+            'active.user' => EnsureUserIsActive::class,
+            'admin.only' => EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

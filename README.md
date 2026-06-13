@@ -1,6 +1,6 @@
 ﻿# Backend API
 
-Laravel-based backend API for the Authentication, RBAC, Activity Logs and User Mangement application.
+Laravel-based backend API for the Authentication, RBAC, Activity Logs and User Management application.
 
 ## Tech Stack
 
@@ -8,6 +8,67 @@ Laravel-based backend API for the Authentication, RBAC, Activity Logs and User M
 - PHP 8.2+
 - MySQL / MariaDB
 - Laravel Sanctum (API auth)
+
+## Folder Structure
+
+```text
+laravel-rbac-api/
++-- app/
+|   +-- Enums/                 # Centralized enum values for roles, status and permissions
+|   +-- Helpers/               # Shared helper functions
+|   +-- Http/
+|   |   +-- Controllers/Api/   # API controllers for auth, users, modules and RBAC
+|   |   +-- Middleware/        # Rate limit and request protection middleware
+|   |   +-- Requests/Api/      # Form request validation classes
+|   |   +-- Resources/         # API response transformers
+|   +-- Mail/                  # Mail classes
+|   +-- Models/                # Eloquent models
+|   +-- Providers/             # Laravel service providers
+|   +-- Services/              # Business logic services
+|   +-- Traits/                # Shared model/controller traits
++-- bootstrap/                 # Application bootstrapping and exception handling
++-- config/                    # Laravel and package configuration
++-- database/
+|   +-- factories/             # Model factories for tests
+|   +-- migrations/            # Database schema definitions
+|   +-- seeders/               # Default users, modules, permissions and role access
++-- postman/                   # Postman API collection
++-- public/                    # Public web root and static assets
++-- resources/
+|   +-- css/                   # Frontend CSS assets
+|   +-- js/                    # Frontend JavaScript assets
+|   +-- lang/                  # Translation and validation messages
+|   +-- views/                 # Blade views and email templates
++-- routes/
+|   +-- api.php                # API route definitions
+|   +-- console.php            # Console route definitions
+|   +-- web.php                # Web route definitions
++-- storage/                   # Logs, framework cache and generated files
++-- tests/
+    +-- Feature/               # API and feature tests
+    +-- Unit/                  # Unit tests
+```
+
+## Architecture
+
+This project follows a layered Laravel API structure:
+
+1. `routes/api.php` defines public and protected API endpoints.
+2. API controllers in `app/Http/Controllers/Api` receive requests and return JSON responses.
+3. Request classes in `app/Http/Requests/Api` validate incoming payloads.
+4. Service classes in `app/Services` contain the main business logic for authentication, users, modules and permissions.
+5. Eloquent models in `app/Models` handle database interaction.
+6. API resources in `app/Http/Resources` format response data consistently.
+7. Middleware in `app/Http/Middleware` applies authentication and rate-limiting rules.
+
+Main API modules:
+
+- `AuthController` + `AuthService`: login, registration, token refresh, logout and password reset.
+- `UserController` + `UserService`: user listing, CRUD, status changes and profile data.
+- `ModuleController` + `ModuleService`: module management for the RBAC menu/module system.
+- `RoleModuleController`: role-to-module access matrix and toggles.
+- `UserPermissionController` + `UserPermissionService`: user-level permission matrix, module access and sidebar menu.
+- `ActivityLogController` + `ActivityLogger`: activity log listing and write support.
 
 ## Requirements
 

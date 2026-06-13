@@ -9,14 +9,7 @@ class ForgotPasswordRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email|exists:users,email',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'email.exists' => __('messages.user_not_found'),
+            'email' => 'required|email',
         ];
     }
 

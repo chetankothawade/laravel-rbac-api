@@ -37,13 +37,11 @@ class AuthService
                 'status'     => UserStatus::INACTIVE->value,
             ]);
 
-            $token = $user->createToken('ADMIN_AUTH_TOKEN')->plainTextToken;
-
             $this->activityLogger()->log('user', $user, 'registered', [], $user);
 
             return [
                 'user'  => $user,
-                'token' => $token
+                'token' => null
             ];
         });
     }
@@ -95,6 +93,10 @@ class AuthService
      */
     public function sendResetLink(string $email): bool
     {
+        if (! User::where('email', $email)->exists()) {
+            return true;
+        }
+
         $token = Str::random(64);
 
         return DB::transaction(function () use ($email, $token) {

@@ -72,4 +72,23 @@ class AuthLoginTest extends TestCase
         $response->assertStatus(401);
         $this->assertFalse((bool) $response->json('status'));
     }
+
+    public function test_public_registration_does_not_return_token_for_inactive_account(): void
+    {
+        $response = $this->postJson('/api/register', [
+            'name' => 'Registered User',
+            'email' => 'registered.user@example.com',
+            'phone' => '9999999999',
+            'password' => 'Password@123',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('status', true)
+            ->assertJsonPath('data.token', null);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'registered.user@example.com',
+            'status' => UserStatus::INACTIVE->value,
+        ]);
+    }
 }

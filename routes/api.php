@@ -30,7 +30,6 @@ Route::middleware(['ip.throttle', 'burst.throttle'])->group(function () {
     Route::post('/login',           [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password',  [AuthController::class, 'resetPassword']);
-    Route::post('/refresh',         [AuthController::class, 'refreshToken']);
 
 
 /*
@@ -38,7 +37,7 @@ Route::middleware(['ip.throttle', 'burst.throttle'])->group(function () {
 | Protected Routes (Requires auth:sanctum)
 |--------------------------------------------------------------------------
 */
-    Route::middleware(['auth:sanctum', 'role.throttle', 'token.throttle'])->group(function () {
+    Route::middleware(['auth:sanctum', 'active.user', 'role.throttle', 'token.throttle'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -47,8 +46,10 @@ Route::middleware(['ip.throttle', 'burst.throttle'])->group(function () {
     */
     Route::get('/me',      [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refreshToken']);
    
   
+    Route::middleware(['admin.only'])->group(function () {
     /*
     |--------------------------------------------------------------------------
     | Users
@@ -96,6 +97,7 @@ Route::middleware(['ip.throttle', 'burst.throttle'])->group(function () {
         Route::get('/matrix', [RoleModuleController::class, 'matrix']);
         Route::post('/toggle', [RoleModuleController::class, 'toggle']);
     });
+    });
 
 
     /*
@@ -105,9 +107,11 @@ Route::middleware(['ip.throttle', 'burst.throttle'])->group(function () {
     */
     Route::prefix('user-permissions')->group(function () {
         Route::get('/side-menu', [UserPermissionController::class, 'sidebarMenu']);
-        Route::post('/toggle',  [UserPermissionController::class, 'toggle']);
-        Route::get('/{uuid}/getAll',   [UserPermissionController::class, 'getUsersModulesPermission']);
-        Route::get('/{uuid}/module-access', [UserPermissionController::class, 'userModuleAccess']);
+        Route::middleware(['admin.only'])->group(function () {
+            Route::post('/toggle',  [UserPermissionController::class, 'toggle']);
+            Route::get('/{uuid}/getAll',   [UserPermissionController::class, 'getUsersModulesPermission']);
+            Route::get('/{uuid}/module-access', [UserPermissionController::class, 'userModuleAccess']);
+        });
     });
 
     /*
