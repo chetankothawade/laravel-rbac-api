@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,10 +11,11 @@ use Illuminate\Support\Str;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, LogsActivity;
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, LogsActivity, HasUuid;
 
     /**
      * The attributes that are mass assignable.
@@ -63,17 +65,6 @@ class User extends Authenticatable
     protected $dates = [
         'deleted_at'
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (empty($model->uuid)) {
-                $model->uuid = (string) Str::uuid();
-            }
-        });
-    }
 
 
     public function getActivitylogOptions(): LogOptions
