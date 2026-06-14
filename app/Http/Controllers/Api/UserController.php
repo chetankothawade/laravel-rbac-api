@@ -29,7 +29,7 @@ class UserController extends Controller
         $filters = $request->filters();
 
         $users = $this->userService->getPaginatedUsers($filters);
-
+ 
         return $this->paginate(
             "messages.user_list_success",
             UserResource::collection($users),

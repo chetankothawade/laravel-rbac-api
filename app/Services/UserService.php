@@ -16,9 +16,12 @@ use App\Models\User;
 use App\Services\Logging\ActivityLogger;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -64,6 +67,7 @@ class UserService
                 'name'       => $data['name'],
                 'email'      => $data['email'],
                 'phone'      => $data['phone'],
+                'avatar'     => $this->storeAvatar($data['avatar'] ?? null),
                 'password'   => Hash::make($data['password']),
                 'last_login_ip' => $ipAddress,
                 'status'     => $data['status'] ?? UserStatus::ACTIVE->value,
@@ -86,6 +90,11 @@ class UserService
                 'phone'     => $data['phone'] ?? $user->phone,
                 'role'      => $data['role'] ?? $user->role,
             ];
+
+            if (($data['avatar'] ?? null) instanceof UploadedFile) {
+                $this->deleteAvatar($user->avatar);
+                $updateData['avatar'] = $this->storeAvatar($data['avatar']);
+            }
 
             if (! empty($data['password'])) {
                 $updateData['password'] = Hash::make($data['password']);
@@ -166,5 +175,25 @@ class UserService
     private function activityLogger(): ActivityLogger
     {
         return app(ActivityLogger::class);
+    }
+
+    private function storeAvatar(?UploadedFile $avatar): ?string
+    {
+        if (!$avatar) {
+            return null;
+        }
+
+        return $avatar->storeAs(
+            'uploads/users/avatars',
+            Str::uuid() . '.' . $avatar->getClientOriginalExtension(),
+            'public'
+        );
+    }
+
+    private function deleteAvatar(?string $avatar): void
+    {
+        if ($avatar) {
+            Storage::disk('public')->delete($avatar);
+        }
     }
 }

@@ -13,6 +13,7 @@ class UserStoreRequest extends BaseApiRequest
             'email'     => 'required|email:rfc,dns|max:255|unique:users,email',
             'name'      => 'required|string|max:255',
             'phone'     => 'required|string|max:20',
+            'avatar'    => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
             'password'  => 'required|string|min:6|confirmed',
             'password_confirmation' => 'required|string',
             'status'    => 'nullable|in:' . implode(',', UserStatus::creatableValues()),

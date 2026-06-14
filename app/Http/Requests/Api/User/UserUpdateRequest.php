@@ -12,6 +12,7 @@ class UserUpdateRequest extends BaseApiRequest
         return [
             'name'      => 'required|string|max:255',
             'phone'     => 'required|string|max:20',
+            'avatar'    => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
             'role'      => 'required|string|in:' . implode(',', UserRole::assignableValues()),
             'password'  => 'nullable|string|min:6|confirmed',
             'password_confirmation' => 'nullable|string',
