@@ -127,7 +127,7 @@ class UserController extends Controller
      */
     private function findUserOrFail(string $uuid): User
     {
-        $user = $this->userService->getByUuid($uuid);
+        $user = $this->userService->getManageableByUuid($uuid);
 
         if (!$user) {
             abort(404, __("messages.user_not_found"));

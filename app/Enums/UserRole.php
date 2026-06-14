@@ -14,4 +14,12 @@ enum UserRole: string
     {
         return array_column(self::cases(), 'value');
     }
+
+    public static function assignableValues(): array
+    {
+        return [
+            self::ADMIN->value,
+            self::USER->value,
+        ];
+    }
 }

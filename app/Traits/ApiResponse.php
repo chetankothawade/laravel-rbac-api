@@ -6,6 +6,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 trait ApiResponse
@@ -93,6 +94,8 @@ trait ApiResponse
             $result = $callback();
 
             return $this->success($successMessage, $result, $code);
+        } catch (HttpExceptionInterface $e) {
+            throw $e;
         } catch (Throwable $e) {
 
             report($e); // Logs error in Laravel logs

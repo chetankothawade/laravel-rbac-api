@@ -12,9 +12,9 @@ class UserUpdateRequest extends BaseApiRequest
         return [
             'name'      => 'required|string|max:255',
             'phone'     => 'required|string|max:20',
-            'role'      => 'required|string|in:' . implode(',', UserRole::values()),
-            'password'  => 'nullable|string|min:6',
-            'cpassword' => 'nullable|same:password',
+            'role'      => 'required|string|in:' . implode(',', UserRole::assignableValues()),
+            'password'  => 'nullable|string|min:6|confirmed',
+            'password_confirmation' => 'nullable|string',
         ];
     }
 }

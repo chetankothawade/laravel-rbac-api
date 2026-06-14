@@ -140,6 +140,18 @@ class UserService
         return User::where('uuid', $uuid)->first();
     }
 
+    /**
+     * Fetch a user that can be managed through the user-management module.
+     */
+    public function getManageableByUuid(string $uuid): ?User
+    {
+        return User::where('uuid', $uuid)
+            ->whereNull('deleted_at')
+            ->where('id', '!=', Auth::id())
+            ->where('role', '!=', UserRole::SUPER_ADMIN->value)
+            ->first();
+    }
+
 
 
     public function getUserList(): Collection
