@@ -10,9 +10,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Repositories\UserRepository;
 use App\Services\Logging\ActivityLogger;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,36 +25,19 @@ use Illuminate\Support\Str;
 
 class UserService
 {
+    protected UserRepository $userRepository;
+
+    public function __construct(?UserRepository $userRepository = null)
+    {
+        $this->userRepository = $userRepository ?? app(UserRepository::class);
+    }
+
     /**
      * Get paginated users with optional search and sorting.
      */
     public function getPaginatedUsers(array $filters): LengthAwarePaginator
     {
-        $search      = $filters['search'] ?? null;
-        $status      = $filters['status'] ?? null;
-        $sortedField = $filters['sortedField'] ?? 'id';
-        $sortedBy    = $filters['sortedBy'] ?? 'asc';
-        $perPage     = $filters['perPage'] ?? 10;
-
-        $query = User::select('*')
-            ->whereNull('deleted_at')
-            ->where('id', '!=', Auth::id())
-            ->where('role', '!=', UserRole::SUPER_ADMIN->value);
-
-        if (! empty($status)) {
-            $query->where('status', $status);
-        }
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $query->orderBy($sortedField, $sortedBy);
-
-        return $query->paginate($perPage);
+        return $this->userRepository->getPaginatedManageable($filters, Auth::id());
     }
 
     /**
@@ -63,7 +46,7 @@ class UserService
     public function createUser(array $data, string $ipAddress): User
     {
         return DB::transaction(function () use ($data, $ipAddress) {
-            $user = User::create([
+            return $this->userRepository->create([
                 'name'       => $data['name'],
                 'email'      => $data['email'],
                 'phone'      => $data['phone'],
@@ -72,8 +55,6 @@ class UserService
                 'last_login_ip' => $ipAddress,
                 'status'     => $data['status'] ?? UserStatus::ACTIVE->value,
             ]);
-
-            return $user;
         });
     }
 
@@ -100,7 +81,7 @@ class UserService
                 $updateData['password'] = Hash::make($data['password']);
             }
 
-            $user->update($updateData);
+            $this->userRepository->update($user, $updateData);
 
             return $user->fresh();
         });
@@ -114,8 +95,8 @@ class UserService
     public function deleteUser(User $user): void
     {
         DB::transaction(function () use ($user) {
-            $user->update(['status' => UserStatus::DELETED->value]);
-            $user->delete(); // assumes SoftDeletes on User model
+            $this->userRepository->update($user, ['status' => UserStatus::DELETED->value]);
+            $this->userRepository->delete($user); // assumes SoftDeletes on User model
         });
     }
 
@@ -129,7 +110,7 @@ class UserService
                 ? UserStatus::INACTIVE->value
                 : UserStatus::ACTIVE->value;
             activity()->withoutLogs(function () use ($user, $newStatus) {
-                $user->update(['status' => $newStatus]);
+                $this->userRepository->update($user, ['status' => $newStatus]);
             });
 
             $user = $user->fresh();
@@ -146,7 +127,7 @@ class UserService
      */
     public function getByUuid(string $uuid): ?User
     {
-        return User::where('uuid', $uuid)->first();
+        return $this->userRepository->findByUuid($uuid);
     }
 
     /**
@@ -154,22 +135,14 @@ class UserService
      */
     public function getManageableByUuid(string $uuid): ?User
     {
-        return User::where('uuid', $uuid)
-            ->whereNull('deleted_at')
-            ->where('id', '!=', Auth::id())
-            ->where('role', '!=', UserRole::SUPER_ADMIN->value)
-            ->first();
+        return $this->userRepository->findManageableByUuid($uuid, Auth::id());
     }
 
 
 
     public function getUserList(): Collection
     {
-        return User::select(['id', 'uuid', 'name'])
-            ->whereNull('deleted_at')
-            ->where('id', '!=', Auth::id())
-            ->where('role', '!=', UserRole::SUPER_ADMIN->value)
-            ->get();
+        return $this->userRepository->getManageableList(Auth::id());
     }
 
     private function activityLogger(): ActivityLogger
