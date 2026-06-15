@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EditorUploadController;
 use App\Http\Controllers\Api\ModuleController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RoleModuleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserPermissionController;
@@ -117,6 +119,28 @@ Route::middleware(['ip.throttle', 'burst.throttle'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Products
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('products')->group(function () {
+            Route::get('/', [ProductController::class, 'index']);
+            Route::get('/{uuid}', [ProductController::class, 'show']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cart
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('cart')->group(function () {
+            Route::get('/', [CartController::class, 'show']);
+            Route::post('/items', [CartController::class, 'store']);
+            Route::put('/items/{itemUuid}', [CartController::class, 'update']);
+            Route::delete('/items/{itemUuid}', [CartController::class, 'destroy']);
+        });
 
         /*
         |--------------------------------------------------------------------------

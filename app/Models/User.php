@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -92,5 +93,10 @@ class User extends Authenticatable
             'registered' => 'User registered',
             default => "User {$eventName}",
         };
+    }
+
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class);
     }
 }

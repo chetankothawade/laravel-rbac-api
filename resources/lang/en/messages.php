@@ -92,6 +92,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Product Catalog
+    |--------------------------------------------------------------------------
+    */
+
+    'product_list_success'    => 'Products retrieved successfully.',
+    'product_details_success' => 'Product details retrieved successfully.',
+    'product_not_found'       => 'Product not found.',
+    'product_out_of_stock'    => 'Requested quantity is not available in stock.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Shopping Cart
+    |--------------------------------------------------------------------------
+    */
+
+    'cart_details_success' => 'Cart retrieved successfully.',
+    'cart_item_added'      => 'Product added to cart successfully.',
+    'cart_item_updated'    => 'Cart item updated successfully.',
+    'cart_item_removed'    => 'Cart item removed successfully.',
+    'cart_not_found'       => 'Cart not found.',
+    'cart_item_not_found'  => 'Cart item not found.',
+
+    /*
+    |--------------------------------------------------------------------------
     | Role Module Messages
     |--------------------------------------------------------------------------
     */

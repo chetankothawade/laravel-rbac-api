@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 //USE FOR Rate Limiting MIDDLEWARE
 use App\Http\Middleware\RateLimitByRole;
 use App\Http\Middleware\RateLimitByIP;
@@ -97,6 +98,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => __('messages.method_not_allowed'),
                 'code' => 405,
             ], 405);
+        });
+
+        $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage() !== '' ? $e->getMessage() : __('messages.invalid'),
+                'code' => $e->getStatusCode(),
+            ], $e->getStatusCode());
         });
 
         $exceptions->render(function (\DomainException $e, Request $request) {
